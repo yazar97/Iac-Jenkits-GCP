@@ -1,3 +1,4 @@
+/*
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
@@ -26,3 +27,5 @@ variable "subnets" {
     region = string
   }))
 }
+
+*/
