@@ -6,10 +6,6 @@ pipeline {
     TF_WORKDIR = "env/${env.BRANCH_NAME}"
   }
 
-  triggers {
-    githubPush()
-  }
-
   stages {
     stage('Checkout') {
       steps {
@@ -40,10 +36,10 @@ pipeline {
         expression { env.BRANCH_NAME == 'prod' }
       }
       steps {
-        input message: "Approve the deployment to production?", ok: 'Deploy'
+        input message: "Approvee the deployment to production?", ok: 'Deploy'
       }
     }
-
+  
     stage('Terraform Apply') {
       steps {
         dir("${TF_WORKDIR}") {
@@ -53,4 +49,3 @@ pipeline {
     }
   }
 }
-
