@@ -2,7 +2,7 @@ project_id = "nimble-test-latest"
 region     = "us-central1"
 env        = "dev"
 
-vpc_name   = "vpc-dev"
+vpc_name   = "vpciii-dev"
 
 subnets = {
   subnet1 = {
