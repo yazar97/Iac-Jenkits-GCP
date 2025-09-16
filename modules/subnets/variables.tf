@@ -1,3 +1,4 @@
+/*
 variable "subnets" {
   type = map(object({
     name   = string
@@ -13,3 +14,5 @@ variable "vpc_self_link" {
 variable "project_id" {
   type = string
 }
+
+*/
