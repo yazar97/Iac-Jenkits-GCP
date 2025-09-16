@@ -1,7 +1,8 @@
+
 project_id = "nimble-test-latest"
 region     = "us-east1"
 env        = "test"
-
+/*
 vpc_name   = "vpc-test"
 
 subnets = {
@@ -16,3 +17,5 @@ subnets = {
     region = "us-east1"
   }
 }
+
+*/

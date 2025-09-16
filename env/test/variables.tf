@@ -1,4 +1,3 @@
-/*
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
@@ -13,7 +12,7 @@ variable "env" {
   description = "Environment name (dev/test/prod)"
   type        = string
 }
-
+/*
 variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
