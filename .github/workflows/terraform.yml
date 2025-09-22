@@ -6,7 +6,10 @@ on:
       - dev
       - test
       - main
-
+permissions:
+  contents: read
+  id-token: write
+  
 jobs:
   terraform-dev:
     if: github.ref == 'refs/heads/dev'
