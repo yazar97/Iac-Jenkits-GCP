@@ -1,4 +1,4 @@
-/*
+
 variable "subnets" {
   type = map(object({
     name   = string
@@ -15,4 +15,4 @@ variable "project_id" {
   type = string
 }
 
-*/
+
