@@ -90,4 +90,4 @@ jobs:
         run: terraform -chdir=env/prod plan -out=tfplan
 
       - name: Terraform Apply (Prod)
-        run: terraform -chdir=env/prod apply -input=false tfplan
+        run: terraform -chdir=env/prod apply -input=false tfplan 
