@@ -5,76 +5,86 @@ on:
     branches:
       - dev
       - test
-      - prod
+      - main
 
 jobs:
-  terraform:
+  terraform-dev:
+    if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'prod' && 'prod' || github.ref_name }}
-    defaults:
-      run:
-        shell: bash
+    environment: dev
     steps:
-      # 1️⃣ Checkout
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 2️⃣ Determine environment & Terraform directory
-      - name: Set environment variables
-        run: |
-          if [ "${GITHUB_REF_NAME}" == "dev" ]; then
-            echo "TF_DIR=env/dev" >> $GITHUB_ENV
-            echo "GCP_SECRET=GCP_CREDENTIALS_DEV" >> $GITHUB_ENV
-          elif [ "${GITHUB_REF_NAME}" == "test" ]; then
-            echo "TF_DIR=env/test" >> $GITHUB_ENV
-            echo "GCP_SECRET=GCP_CREDENTIALS_TEST" >> $GITHUB_ENV
-          elif [ "${GITHUB_REF_NAME}" == "prod" ]; then
-            echo "TF_DIR=env/prod" >> $GITHUB_ENV
-            echo "GCP_SECRET=GCP_CREDENTIALS_PROD" >> $GITHUB_ENV
-          else
-            echo "Unknown branch, exiting"
-            exit 1
-          fi
-
-      # 3️⃣ Authenticate to GCP
-      - name: Authenticate to GCP
+      - name: Authenticate to GCP (Dev)
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets[env.GCP_SECRET] }}
+          workload_identity_provider: 'projects/259483047577/locations/global/workloadIdentityPools/github-demo-pool/providers/github'
+          service_account: 'iac-648@deft-ellipse-472905-s4.iam.gserviceaccount.com'
 
-      # 4️⃣ Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
 
-      # 5️⃣ Terraform Init
-      - name: Terraform Init
-        run: terraform -chdir=${{ env.TF_DIR }} init
+      - name: Terraform Init (Dev)
+        run: terraform -chdir=env/dev init
 
-      # 6️⃣ Terraform Validate
-      - name: Terraform Validate
-        run: terraform -chdir=${{ env.TF_DIR }} validate
+      - name: Terraform Plan (Dev)
+        run: terraform -chdir=env/dev plan -out=tfplan
 
-      # 7️⃣ Terraform Plan
-      - name: Terraform Plan
-        run: terraform -chdir=${{ env.TF_DIR }} plan -out=tfplan
+      - name: Terraform Apply (Dev)
+        run: terraform -chdir=env/dev apply -input=false tfplan
 
-      # 8️⃣ Upload plan as artifact (optional)
-      - name: Upload Terraform Plan
-        uses: actions/upload-artifact@v3
+  terraform-test:
+    if: github.ref == 'refs/heads/test'
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP (Test)
+        uses: google-github-actions/auth@v2
         with:
-          name: tfplan-${{ github.ref_name }}
-          path: ${{ env.TF_DIR }}/tfplan
+          workload_identity_provider: 'projects/259483047577/locations/global/workloadIdentityPools/github-demo-pool/providers/github'
+          service_account: 'iac-648@deft-ellipse-472905-s4.iam.gserviceaccount.com'
 
-      # 9️⃣ Approval for Prod
-      - name: Wait for approval (Prod)
-        if: github.ref_name == 'prod'
-        uses: hmarr/auto-approve-action@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
-          message: "Waiting for manual approval to apply Terraform in PROD"
+          terraform_version: 1.5.0
 
-      # 🔟 Terraform Apply
-      - name: Terraform Apply
-        run: terraform -chdir=${{ env.TF_DIR }} apply -input=false tfplan
+      - name: Terraform Init (Test)
+        run: terraform -chdir=env/test init
 
+      - name: Terraform Plan (Test)
+        run: terraform -chdir=env/test plan -out=tfplan
+
+      - name: Terraform Apply (Test)
+        run: terraform -chdir=env/test apply -input=false tfplan
+
+  terraform-prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: prod   # 👈 will wait for approval
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP (Prod)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'rojects/259483047577/locations/global/workloadIdentityPools/github-demo-pool/providers/github'
+          service_account: 'iac-648@deft-ellipse-472905-s4.iam.gserviceaccount.com'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init (Prod)
+        run: terraform -chdir=env/prod init
+
+      - name: Terraform Plan (Prod)
+        run: terraform -chdir=env/prod plan -out=tfplan
+
+      - name: Terraform Apply (Prod)
+        run: terraform -chdir=env/prod apply -input=false tfplan
