@@ -21,8 +21,8 @@ jobs:
       - name: Authenticate to GCP (Dev)
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: 'projects/259483047577/locations/global/workloadIdentityPools/github-demo-pool/providers/github'
-          service_account: 'iac-648@deft-ellipse-472905-s4.iam.gserviceaccount.com'
+          workload_identity_provider: projects/259483047577/locations/global/workloadIdentityPools/github-demo-pool/providers/github
+          service_account: iac-648@deft-ellipse-472905-s4.iam.gserviceaccount.com
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
