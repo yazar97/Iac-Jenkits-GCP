@@ -1,0 +1,80 @@
+name: Terraform » VPC Creation (Multi-env)
+
+on:
+  push:
+    branches:
+      - dev
+      - test
+      - prod
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'prod' && 'prod' || github.ref_name }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # 1️⃣ Checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Determine environment & Terraform directory
+      - name: Set environment variables
+        run: |
+          if [ "${GITHUB_REF_NAME}" == "dev" ]; then
+            echo "TF_DIR=env/dev" >> $GITHUB_ENV
+            echo "GCP_SECRET=GCP_CREDENTIALS_DEV" >> $GITHUB_ENV
+          elif [ "${GITHUB_REF_NAME}" == "test" ]; then
+            echo "TF_DIR=env/test" >> $GITHUB_ENV
+            echo "GCP_SECRET=GCP_CREDENTIALS_TEST" >> $GITHUB_ENV
+          elif [ "${GITHUB_REF_NAME}" == "prod" ]; then
+            echo "TF_DIR=env/prod" >> $GITHUB_ENV
+            echo "GCP_SECRET=GCP_CREDENTIALS_PROD" >> $GITHUB_ENV
+          else
+            echo "Unknown branch, exiting"
+            exit 1
+          fi
+
+      # 3️⃣ Authenticate to GCP
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets[env.GCP_SECRET] }}
+
+      # 4️⃣ Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      # 5️⃣ Terraform Init
+      - name: Terraform Init
+        run: terraform -chdir=${{ env.TF_DIR }} init
+
+      # 6️⃣ Terraform Validate
+      - name: Terraform Validate
+        run: terraform -chdir=${{ env.TF_DIR }} validate
+
+      # 7️⃣ Terraform Plan
+      - name: Terraform Plan
+        run: terraform -chdir=${{ env.TF_DIR }} plan -out=tfplan
+
+      # 8️⃣ Upload plan as artifact (optional)
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfplan-${{ github.ref_name }}
+          path: ${{ env.TF_DIR }}/tfplan
+
+      # 9️⃣ Approval for Prod
+      - name: Wait for approval (Prod)
+        if: github.ref_name == 'prod'
+        uses: hmarr/auto-approve-action@v2
+        with:
+          message: "Waiting for manual approval to apply Terraform in PROD"
+
+      # 🔟 Terraform Apply
+      - name: Terraform Apply
+        run: terraform -chdir=${{ env.TF_DIR }} apply -input=false tfplan
+
