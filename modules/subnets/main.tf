@@ -1,4 +1,3 @@
-/*
 
 resource "google_compute_subnetwork" "subnet" {
   for_each               = var.subnets
@@ -8,4 +7,4 @@ resource "google_compute_subnetwork" "subnet" {
   network                = var.vpc_self_link
   project                = var.project_id
 }
-*/
+
