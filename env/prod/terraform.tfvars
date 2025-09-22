@@ -1,4 +1,4 @@
-project_id = "nimble-test-latest"
+project_id = "deft-ellipse-472905-s4"
 region     = "us-west1"
 env        = "prod"
 
