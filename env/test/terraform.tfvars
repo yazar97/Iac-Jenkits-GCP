@@ -2,7 +2,7 @@
 project_id = "deft-ellipse-472905-s4"
 region     = "us-east1"
 env        = "test"
-/*
+
 vpc_name   = "vpc-test"
 
 subnets = {
@@ -18,4 +18,3 @@ subnets = {
   }
 }
 
-*/
