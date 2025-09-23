@@ -1,71 +1,17 @@
 
-#name: Terraform » VPC Creation (Multi-env)
+name: Terraform » VPC Creation (Multi-env)
 
-#on:
+on:
   push:
     branches:
       - dev
       - test
       - prod
-#permissions:
+permissions:
   contents: read
   id-token: write
   
-#jobs:
-  terraform-dev:
-    if: github.ref == 'refs/heads/dev'
-    runs-on: ubuntu-latest
-    environment: dev
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Authenticate to GCP (Dev)
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: projects/259483047577/locations/global/workloadIdentityPools/github-demo-pool/providers/github
-          service_account: iac-648@deft-ellipse-472905-s4.iam.gserviceaccount.com
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      - name: Terraform Init (Dev)
-        run: terraform -chdir=env/dev init
-
-      - name: Terraform Plan (Dev)
-        run: terraform -chdir=env/dev plan -out=tfplan
-
-      - name: Terraform Apply (Dev)
-        run: terraform -chdir=env/dev apply -input=false tfplan
-
-  terraform-test:
-    if: github.ref == 'refs/heads/test'
-    runs-on: ubuntu-latest
-    environment: test
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Authenticate to GCP (Test)
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: 'projects/259483047577/locations/global/workloadIdentityPools/github-demo-pool/providers/github'
-          service_account: 'iac-648@deft-ellipse-472905-s4.iam.gserviceaccount.com'
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      - name: Terraform Init (Test)
-        run: terraform -chdir=env/test init
-
-      - name: Terraform Plan (Test)
-        run: terraform -chdir=env/test plan -out=tfplan
-
-      - name: Terraform Apply (Test)
-        run: terraform -chdir=env/test apply -input=false tfplan
-
+jobs:
   terraform-prod:
     if: github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
