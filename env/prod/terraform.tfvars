@@ -15,4 +15,9 @@ subnets = {
     cidr   = "10.2.2.0/24"
     region = "us-west1"
   }
+  subnet3 = {
+    name   = "subnet-prod-3"
+    cidr   = "10.2.3.0/24"
+    region = "us-west1"
+  }
 }
