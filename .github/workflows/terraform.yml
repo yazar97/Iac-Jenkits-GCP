@@ -1,16 +1,17 @@
-name: Terraform » VPC Creation (Multi-env)
 
-on:
+#name: Terraform » VPC Creation (Multi-env)
+
+#on:
   push:
     branches:
       - dev
       - test
       - prod
-permissions:
+#permissions:
   contents: read
   id-token: write
   
-jobs:
+#jobs:
   terraform-dev:
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
@@ -91,3 +92,4 @@ jobs:
 
       - name: Terraform Apply (Prod)
         run: terraform -chdir=env/prod apply -input=false tfplan 
+
