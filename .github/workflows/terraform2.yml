@@ -14,11 +14,10 @@ permissions:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    environment: ${{ matrix.env }}
     strategy:
       matrix:
         env: [dev, test, prod]
-
+    environment: ${{ matrix.env == 'prod' && 'prod' || '' }}  # only sets prod for prod
     steps:
       - uses: actions/checkout@v4
 
