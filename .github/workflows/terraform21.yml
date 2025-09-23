@@ -1,0 +1,44 @@
+name: Terraform » VPC Creation (Multi-env)
+
+on:
+  push:
+    branches:
+      - dev
+      - test
+      - prod   # your production branch
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.env }}
+    strategy:
+      matrix:
+        env: [dev, test, prod]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/259483047577/locations/global/workloadIdentityPools/github-demo-pool/providers/github
+          service_account: iac-648@deft-ellipse-472905-s4.iam.gserviceaccount.com
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform -chdir=env/${{ matrix.env }} init
+
+      - name: Terraform Plan
+        run: terraform -chdir=env/${{ matrix.env }} plan -out=tfplan
+
+      - name: Terraform Apply
+        if: ${{ matrix.env != 'prod' }}
+        run: terraform -chdir=env/${{ matrix.env }} apply -input=false tfplan
