@@ -27,4 +27,13 @@ variable "subnets" {
   }))
 }
 
-
+/*
+variable "subnets" {
+  description = "Map of subnets with name, cidr, and region"
+  type = map(object({
+    name   = string
+    cidr   = string
+    region = string
+  }))
+}
+*/
